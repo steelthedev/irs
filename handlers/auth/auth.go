@@ -36,6 +36,15 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
+	if utils.CheckUserExistsWithEmail(params.Email, h.DB) {
+		slog.Info("User with email already exists", "Email", params.Email)
+		ctx.Error(&data.AppHttpErr{
+			Message: "User with this email already exists",
+			Code:    500,
+		})
+		return
+	}
+
 	hashedPwd, err := utils.HashPassword(params.Password)
 	if err != nil {
 		slog.Info(err.Error())
