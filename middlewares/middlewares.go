@@ -13,14 +13,17 @@ func ErrorHandler() gin.HandlerFunc {
 
 		if len(ctx.Errors) > 0 {
 			err := ctx.Errors.Last()
-
-			appErr := &data.AppHttpErr{
-				Message: err.Error(),
-				Code:    http.StatusInternalServerError,
+			var appErr *data.AppHttpErr
+			switch err.Err.(type) {
+			case *data.AppHttpErr:
+				appErr = err.Err.(*data.AppHttpErr)
+			default:
+				appErr = &data.AppHttpErr{
+					Message: err.Error(),
+					Code:    http.StatusInternalServerError,
+				}
 			}
-
 			ctx.IndentedJSON(appErr.Code, appErr)
-			return
 		}
 	}
 }

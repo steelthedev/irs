@@ -17,6 +17,8 @@ type User struct {
 	Role      string `json:"role"; gorm:"column:role"`
 }
 
-func (u *User) BeforeCreate(db *gorm.DB) {
+func (u *User) BeforeCreate(db *gorm.DB) error {
 	u.Role = UserRole
+
+	return nil
 }
