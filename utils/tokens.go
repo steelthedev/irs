@@ -64,7 +64,7 @@ func TokenValid(ctx *gin.Context) error {
 	return nil
 }
 
-func ExtractTokenID(ctx *gin.Context) (uint, error) {
+func ExtractIdFromToken(ctx *gin.Context) (uint, error) {
 	secretKey := os.Getenv("SECRET_KEY")
 	tokenString := ExtractToken(ctx)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {

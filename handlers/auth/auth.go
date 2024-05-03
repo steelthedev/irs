@@ -19,6 +19,7 @@ type AuthHandler struct {
 func (h AuthHandler) CreateUser(ctx *gin.Context) {
 	var params data.RegisterUser
 
+	// Bind Body
 	if err := ctx.BindJSON(&params); err != nil {
 		slog.Warn(err.Error())
 		ctx.Error(&data.AppHttpErr{
@@ -28,6 +29,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
+	// Validate Inputed parameters
 	if err := params.Validate(); err != nil {
 		slog.Info(err.Error())
 		ctx.Error(&data.AppHttpErr{
@@ -37,6 +39,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
+	// Check if user already exists
 	if utils.CheckUserExistsWithEmail(params.Email, h.DB) {
 		slog.Info("User with email already exists", "Email", params.Email)
 		ctx.Error(&data.AppHttpErr{
@@ -46,6 +49,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
+	// Hash inputed password with bCrypt
 	hashedPwd, err := utils.HashPassword(params.Password)
 	if err != nil {
 		slog.Info(err.Error())
@@ -55,6 +59,8 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 		})
 		return
 	}
+
+	// Create User Object
 	user := &models.User{
 		Email:     params.Email,
 		Password:  string(hashedPwd),
@@ -62,6 +68,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 		LastName:  params.LastName,
 	}
 
+	// Add user to database
 	if result := h.DB.Create(&user); result.Error != nil {
 		slog.Info(result.Error.Error())
 		ctx.Error(&data.AppHttpErr{

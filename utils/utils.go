@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"log/slog"
 	"regexp"
 
 	"github.com/steelthedev/irs/models"
@@ -25,4 +26,13 @@ func CheckUserExistsWithEmail(email string, db *gorm.DB) bool {
 		return false
 	}
 	return true
+}
+
+func GetUserById(ID uint, db *gorm.DB) (*models.User, error) {
+	var user models.User
+	if result := db.Where("ID=?", ID).First(&user); result.Error != nil {
+		slog.Info(result.Error.Error())
+		return nil, result.Error
+	}
+	return &user, nil
 }
