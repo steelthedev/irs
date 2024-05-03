@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/steelthedev/irs/connections"
+	"github.com/steelthedev/irs/handlers/auth"
 	"github.com/steelthedev/irs/middlewares"
 )
 
@@ -12,7 +13,7 @@ func main() {
 
 	app := gin.Default()
 
-	_, err := connections.InitDb()
+	db, err := connections.InitDb()
 	if err != nil {
 		slog.Info(err.Error())
 	}
@@ -26,6 +27,18 @@ func main() {
 		})
 	})
 
+	// Auth App Handler
+	authHandler := &auth.AuthHandler{
+		DB: db,
+	}
+
+	//Routes
+
+	// Auth Routes
+	authRoutes := app.Group("auth")
+	authRoutes.POST("/register", authHandler.CreateUser)
+
+	// Start app
 	app.Run(":3000")
 
 }

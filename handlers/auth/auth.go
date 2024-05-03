@@ -29,6 +29,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 			Message: err.Error(),
 			Code:    http.StatusBadRequest,
 		})
+		return
 	}
 
 	hashedPwd, err := utils.HashPassword(params.Password)
