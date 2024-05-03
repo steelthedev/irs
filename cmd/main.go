@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/steelthedev/irs/connections"
 	"github.com/steelthedev/irs/handlers/admin"
 	"github.com/steelthedev/irs/handlers/auth"
@@ -21,6 +22,9 @@ func main() {
 		MaxAge:     28,   //days
 		Compress:   true, // disabled by default
 	})
+	if err := godotenv.Load(".env"); err != nil {
+		slog.Info(err.Error())
+	}
 	app := gin.Default()
 
 	db, err := connections.InitDb()
@@ -51,6 +55,7 @@ func main() {
 	// Auth Routes
 	authRoutes := app.Group("auth")
 	authRoutes.POST("/register", authHandler.CreateUser)
+	authRoutes.POST("/login", authHandler.Login)
 
 	// Admin Routes
 	adminRoutes := app.Group("admin")

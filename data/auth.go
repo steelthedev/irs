@@ -9,6 +9,11 @@ type RegisterUser struct {
 	LastName  string `json:"last_name"`
 }
 
+type LoginUser struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type RegisterUserValidator interface {
 	Validate() error
 }

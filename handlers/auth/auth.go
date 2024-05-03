@@ -8,6 +8,7 @@ import (
 	"github.com/steelthedev/irs/data"
 	"github.com/steelthedev/irs/models"
 	"github.com/steelthedev/irs/utils"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -74,4 +75,66 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 		"message": "User created successfully",
 	})
 
+}
+
+func (h AuthHandler) Login(ctx *gin.Context) {
+
+	var params data.LoginUser
+
+	if err := ctx.BindJSON(&params); err != nil {
+		slog.Warn(err.Error())
+		ctx.Error(&data.AppHttpErr{
+			Message: "Invalid Body Request",
+			Code:    http.StatusBadRequest,
+		})
+		return
+	}
+
+	// Check if user with email exists
+
+	if !utils.CheckUserExistsWithEmail(params.Email, h.DB) {
+		slog.Info("User with email does not exist", "Email", params.Email)
+		ctx.Error(&data.AppHttpErr{
+			Message: "User Does Not Exist",
+			Code:    http.StatusNotFound,
+		})
+		return
+	}
+
+	// Get user from DB
+	var user models.User
+
+	if result := h.DB.Where("Email=?", params.Email).First(&user); result.Error != nil {
+		slog.Info(result.Error.Error())
+		ctx.Error(&data.AppHttpErr{
+			Message: "An unexpected error occured",
+			Code:    http.StatusInternalServerError,
+		})
+		return
+	}
+
+	// Compare passwords
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(params.Password)); err != nil {
+		ctx.Error(&data.AppHttpErr{
+			Message: "Incorrect Password.",
+			Code:    http.StatusBadRequest,
+		})
+		return
+	}
+
+	// Generate token
+	token, err := utils.GenerateToken(user)
+	if err != nil {
+		ctx.Error(&data.AppHttpErr{
+			Message: "An error occured",
+			Code:    http.StatusInternalServerError,
+		})
+		return
+	}
+
+	// Send token to user
+	ctx.IndentedJSON(200, gin.H{
+		"access_token": token,
+	})
 }
