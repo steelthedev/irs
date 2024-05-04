@@ -40,7 +40,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 	}
 
 	// Check if user already exists
-	if utils.CheckUserExistsWithEmail(params.Email, h.DB) {
+	if models.CheckUserExistsWithEmail(params.Email, h.DB) {
 		slog.Info("User with email already exists", "Email", params.Email)
 		ctx.Error(&data.AppHttpErr{
 			Message: "User with this email already exists",
@@ -99,7 +99,7 @@ func (h AuthHandler) Login(ctx *gin.Context) {
 
 	// Check if user with email exists
 
-	if !utils.CheckUserExistsWithEmail(params.Email, h.DB) {
+	if !models.CheckUserExistsWithEmail(params.Email, h.DB) {
 		slog.Info("User with email does not exist", "Email", params.Email)
 		ctx.Error(&data.AppHttpErr{
 			Message: "User Does Not Exist",

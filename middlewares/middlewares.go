@@ -71,7 +71,7 @@ func IsAdmin(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		// Get user from Id
-		user, err := utils.GetUserById(userId, db)
+		user, err := models.GetUserById(userId, db)
 		if err != nil {
 			slog.Info("User not recognixed", "Error", err.Error())
 			ctx.AbortWithError(http.StatusInternalServerError, &data.AppHttpErr{

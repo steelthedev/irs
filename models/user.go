@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"log/slog"
+
+	"gorm.io/gorm"
+)
 
 const (
 	AdminRole = "admin"
@@ -21,4 +25,21 @@ func (u *User) BeforeCreate(db *gorm.DB) error {
 	u.Role = UserRole
 
 	return nil
+}
+
+func CheckUserExistsWithEmail(email string, db *gorm.DB) bool {
+	var user User
+	if result := db.Where("Email=?", email).First(&user); result.Error != nil {
+		return false
+	}
+	return true
+}
+
+func GetUserById(ID uint, db *gorm.DB) (*User, error) {
+	var user User
+	if result := db.Where("ID=?", ID).First(&user); result.Error != nil {
+		slog.Info(result.Error.Error())
+		return nil, result.Error
+	}
+	return &user, nil
 }

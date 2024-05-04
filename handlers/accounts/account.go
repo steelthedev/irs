@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/steelthedev/irs/data"
+	"github.com/steelthedev/irs/models"
 	"github.com/steelthedev/irs/utils"
 	"gorm.io/gorm"
 )
@@ -24,7 +25,7 @@ func (h AccountHandler) GetUserProfile(ctx *gin.Context) {
 	}
 
 	// Fetch user from database
-	user, err := utils.GetUserById(userId, h.DB)
+	user, err := models.GetUserById(userId, h.DB)
 	if err != nil {
 		ctx.Error(&data.AppHttpErr{Message: "An error occured", Code: http.StatusInternalServerError})
 		return
