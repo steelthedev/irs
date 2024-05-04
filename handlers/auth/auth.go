@@ -44,7 +44,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 		slog.Info("User with email already exists", "Email", params.Email)
 		ctx.Error(&data.AppHttpErr{
 			Message: "User with this email already exists",
-			Code:    500,
+			Code:    http.StatusInternalServerError,
 		})
 		return
 	}
@@ -78,7 +78,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	ctx.IndentedJSON(200, gin.H{
+	ctx.IndentedJSON(http.StatusOK, gin.H{
 		"message": "User created successfully",
 	})
 

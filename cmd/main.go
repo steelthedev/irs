@@ -64,10 +64,12 @@ func main() {
 
 	// Admin Routes
 	adminRoutes := app.Group("admin")
+	adminRoutes.Use(middlewares.IsAuthenticated())
+	adminRoutes.Use(middlewares.IsAdmin(db))
 	adminRoutes.GET("/users", adminHandler.GetAllUsers)
 
 	// Account Routes
-	accountRoutes := app.Group("account")
+	accountRoutes := app.Group("account", middlewares.IsAuthenticated())
 	accountRoutes.GET("/profile", accountHandler.GetUserProfile)
 
 	// Start app
