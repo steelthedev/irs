@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/steelthedev/irs/connections"
+	"github.com/steelthedev/irs/handlers/accounts"
 	"github.com/steelthedev/irs/handlers/admin"
 	"github.com/steelthedev/irs/handlers/auth"
 	"github.com/steelthedev/irs/middlewares"
@@ -41,6 +42,10 @@ func main() {
 		})
 	})
 
+	accountHandler := &accounts.AccountHandler{
+		DB: db,
+	}
+
 	// Auth App Handler
 	authHandler := &auth.AuthHandler{
 		DB: db,
@@ -60,6 +65,10 @@ func main() {
 	// Admin Routes
 	adminRoutes := app.Group("admin")
 	adminRoutes.GET("/users", adminHandler.GetAllUsers)
+
+	// Account Routes
+	accountRoutes := app.Group("account")
+	accountRoutes.GET("/profile", accountHandler.GetUserProfile)
 
 	// Start app
 	app.Run(":3000")
