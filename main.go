@@ -83,6 +83,8 @@ func main() {
 	// Product Routes
 	productRoutes := app.Group("product", middlewares.IsAuthenticated())
 	productRoutes.POST("/add", productHandler.AddNewProduct)
+	productRoutes.DELETE("/delete/:id", productHandler.DeleteProduct)
+	productRoutes.GET("/", productHandler.GetAllProducts)
 
 	// Start app
 	app.Run(":3000")
