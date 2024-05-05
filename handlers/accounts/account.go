@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/steelthedev/irs/data"
 	"github.com/steelthedev/irs/models"
-	"github.com/steelthedev/irs/utils"
+	"github.com/steelthedev/irs/tokens"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +17,7 @@ type AccountHandler struct {
 
 func (h AccountHandler) GetUserProfile(ctx *gin.Context) {
 	// Get userId from token
-	userId, err := utils.ExtractIdFromToken(ctx)
+	userId, err := tokens.ExtractIdFromToken(ctx)
 	if err != nil {
 		slog.Info(err.Error())
 		ctx.Error(&data.AppHttpErr{Message: "An error occured", Code: http.StatusInternalServerError})

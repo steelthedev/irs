@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/steelthedev/irs/data"
 	"github.com/steelthedev/irs/models"
-	"github.com/steelthedev/irs/utils"
+	"github.com/steelthedev/irs/tokens"
 	"gorm.io/gorm"
 )
 
@@ -35,7 +35,7 @@ func ErrorHandler() gin.HandlerFunc {
 func IsAuthenticated() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
-		token := utils.ExtractToken(ctx)
+		token := tokens.ExtractToken(ctx)
 		if token == "" {
 			slog.Info("Authentication credentials are missing")
 			ctx.AbortWithError(http.StatusUnauthorized, &data.AppHttpErr{
@@ -45,7 +45,7 @@ func IsAuthenticated() gin.HandlerFunc {
 			return
 		}
 
-		if err := utils.TokenValid(ctx); err != nil {
+		if err := tokens.TokenValid(ctx); err != nil {
 			slog.Info("Invalid token", "Error", err.Error())
 			ctx.AbortWithError(http.StatusUnauthorized, &data.AppHttpErr{
 				Message: "Invalid Token",
@@ -60,7 +60,7 @@ func IsAuthenticated() gin.HandlerFunc {
 
 func IsAdmin(db *gorm.DB) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		userId, err := utils.ExtractIdFromToken(ctx)
+		userId, err := tokens.ExtractIdFromToken(ctx)
 		if err != nil {
 			slog.Info("Could not get user details", "Error", err.Error())
 			ctx.AbortWithError(http.StatusInternalServerError, &data.AppHttpErr{

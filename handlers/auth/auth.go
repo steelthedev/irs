@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/steelthedev/irs/data"
 	"github.com/steelthedev/irs/models"
+	"github.com/steelthedev/irs/tokens"
 	"github.com/steelthedev/irs/utils"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -131,7 +132,7 @@ func (h AuthHandler) Login(ctx *gin.Context) {
 	}
 
 	// Generate token
-	token, err := utils.GenerateToken(user)
+	token, err := tokens.GenerateToken(user)
 	if err != nil {
 		ctx.Error(&data.AppHttpErr{
 			Message: "An error occured",
