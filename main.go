@@ -10,7 +10,9 @@ import (
 	"github.com/steelthedev/irs/handlers/accounts"
 	"github.com/steelthedev/irs/handlers/admin"
 	"github.com/steelthedev/irs/handlers/auth"
+	"github.com/steelthedev/irs/handlers/products"
 	"github.com/steelthedev/irs/middlewares"
+	"github.com/steelthedev/irs/models"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -55,6 +57,12 @@ func main() {
 		DB: db,
 	}
 
+	productService := &models.ProductService{
+		DB: db,
+	}
+	productHandler := &products.ProductsHandler{
+		ProductService: *productService,
+	}
 	//Routes
 
 	// Auth Routes
@@ -71,6 +79,10 @@ func main() {
 	// Account Routes
 	accountRoutes := app.Group("account", middlewares.IsAuthenticated())
 	accountRoutes.GET("/profile", accountHandler.GetUserProfile)
+
+	// Product Routes
+	productRoutes := app.Group("product", middlewares.IsAuthenticated())
+	productRoutes.POST("/add", productHandler.AddNewProduct)
 
 	// Start app
 	app.Run(":3000")
