@@ -8,11 +8,10 @@ import (
 	"github.com/steelthedev/irs/data"
 	"github.com/steelthedev/irs/models"
 	"github.com/steelthedev/irs/tokens"
-	"gorm.io/gorm"
 )
 
 type AccountHandler struct {
-	DB *gorm.DB
+	UserService *models.UserService
 }
 
 func (h AccountHandler) GetUserProfile(ctx *gin.Context) {
@@ -25,7 +24,7 @@ func (h AccountHandler) GetUserProfile(ctx *gin.Context) {
 	}
 
 	// Fetch user from database
-	user, err := models.GetUserById(userId, h.DB)
+	user, err := h.userService.GetUserById(userId)
 	if err != nil {
 		ctx.Error(&data.AppHttpErr{Message: "An error occured", Code: http.StatusInternalServerError})
 		return

@@ -44,8 +44,19 @@ func main() {
 		})
 	})
 
-	accountHandler := &accounts.AccountHandler{
+	// Services
+
+	userServices := &models.UserService{
 		DB: db,
+	}
+
+	productService := &models.ProductService{
+		DB: db,
+	}
+
+	// Handlers Structs
+	accountHandler := &accounts.AccountHandler{
+		UserService: userServices,
 	}
 
 	// Auth App Handler
@@ -57,9 +68,6 @@ func main() {
 		DB: db,
 	}
 
-	productService := &models.ProductService{
-		DB: db,
-	}
 	productHandler := &products.ProductsHandler{
 		ProductService: *productService,
 	}

@@ -21,31 +21,35 @@ type User struct {
 	Role      string `json:"role" gorm:"column:role"`
 }
 
+type UserService struct {
+	DB *gorm.DB
+}
+
 func (u *User) BeforeCreate(db *gorm.DB) error {
 	u.Role = UserRole
 
 	return nil
 }
 
-func CheckUserExistsWithEmail(email string, db *gorm.DB) bool {
+func (us UserService) CheckUserExistsWithEmail(email string) bool {
 	var user User
-	if result := db.Where("Email=?", email).First(&user); result.Error != nil {
+	if result := us.DB.Where("Email=?", email).First(&user); result.Error != nil {
 		return false
 	}
 	return true
 }
 
-func GetUserById(ID uint, db *gorm.DB) (*User, error) {
+func (us UserService) GetUserById(ID uint) (*User, error) {
 	var user User
-	if result := db.Where("ID=?", ID).First(&user); result.Error != nil {
+	if result := us.DB.Where("ID=?", ID).First(&user); result.Error != nil {
 		slog.Info(result.Error.Error())
 		return nil, result.Error
 	}
 	return &user, nil
 }
 
-func GetUserRole(ID uint, db *gorm.DB) (string, error) {
-	user, err := GetUserById(ID, db)
+func (us UserService) GetUserRole(ID uint) (string, error) {
+	user, err := us.GetUserById(ID)
 	if err != nil {
 		slog.Info("User could not be fetched ", "Error", err.Error())
 		return "", err
