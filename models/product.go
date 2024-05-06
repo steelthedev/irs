@@ -3,6 +3,7 @@ package models
 import (
 	"log/slog"
 
+	"github.com/steelthedev/irs/data"
 	"gorm.io/gorm"
 )
 
@@ -21,16 +22,11 @@ type ProductService struct {
 	DB *gorm.DB
 }
 
-type AddProductParams struct {
-	Title       string  `json:"title" validate:"required"`
-	Price       float64 `json:"price" validate:"required,gte=0"`
-	Size        string  `json:"size"`
-	Measurement string  `json:"measurement"`
-	Brand       string  `json:"brand"`
-	Quantity    int     `json:"quantity" validate:"required,gte=0"`
+func (p *Product) GetTotalQuantityPrice() int {
+	return (int(p.Price) * p.Quantity)
 }
 
-func (ps *ProductService) AddNewProduct(productParam AddProductParams) (*Product, error) {
+func (ps *ProductService) AddNewProduct(productParam data.AddProductParams) (*Product, error) {
 
 	product := Product{
 		Title:       productParam.Title,
@@ -78,6 +74,30 @@ func (ps *ProductService) GetAllProduct() (*[]Product, error) {
 	return &products, nil
 }
 
-func (p *Product) GetTotalQuantityPrice() int {
-	return (int(p.Price) * p.Quantity)
+func (ps *ProductService) RemoveQuantity(ID uint, units int) error {
+
+	product, err := ps.GetProductByID(ID)
+	if err != nil {
+		return err
+	}
+	product.Quantity -= units
+	if result := ps.DB.Save(&product); result.Error != nil {
+		slog.Info("Error updating product quantity", "Error", result.Error.Error())
+		return err
+	}
+	return nil
+}
+
+func (ps *ProductService) AddQuantity(ID uint, units int) error {
+
+	product, err := ps.GetProductByID(ID)
+	if err != nil {
+		return err
+	}
+	product.Quantity += units
+	if result := ps.DB.Save(&product); result.Error != nil {
+		slog.Info("Error updating product quantity", "Error", result.Error.Error())
+		return err
+	}
+	return nil
 }

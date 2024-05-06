@@ -15,7 +15,7 @@ type ProductsHandler struct {
 }
 
 func (h ProductsHandler) AddNewProduct(ctx *gin.Context) {
-	var params models.AddProductParams
+	var params data.AddProductParams
 
 	if err := ctx.BindJSON(&params); err != nil {
 		slog.Info("Invalid Body Request", "error", err.Error())

@@ -74,7 +74,7 @@ func (h MiddlewareHandler) IsAdmin() gin.HandlerFunc {
 		}
 
 		// Get user from Id
-		user, err := h.userServices.GetUserById(userId)
+		user, err := h.UserServices.GetUserById(userId)
 		if err != nil {
 			slog.Info("User not recognixed", "Error", err.Error())
 			ctx.AbortWithError(http.StatusInternalServerError, &data.AppHttpErr{

@@ -10,6 +10,7 @@ import (
 	"github.com/steelthedev/irs/handlers/accounts"
 	"github.com/steelthedev/irs/handlers/admin"
 	"github.com/steelthedev/irs/handlers/auth"
+	"github.com/steelthedev/irs/handlers/inventory"
 	"github.com/steelthedev/irs/handlers/products"
 	"github.com/steelthedev/irs/middlewares"
 	"github.com/steelthedev/irs/models"
@@ -72,6 +73,10 @@ func main() {
 		ProductService: *productService,
 	}
 
+	inventoryHandler := &inventory.InventoryHandler{
+		ProductService: productService,
+	}
+
 	// Middleware Hanlder
 	middleWareHandler := middlewares.MiddlewareHandler{
 		UserServices: userServices,
@@ -98,6 +103,12 @@ func main() {
 	productRoutes.POST("/add", productHandler.AddNewProduct)
 	productRoutes.DELETE("/delete/:id", productHandler.DeleteProduct)
 	productRoutes.GET("/", productHandler.GetAllProducts)
+
+	// Inventory Routes
+	inventoryRoutes := app.Group("inventory")
+	inventoryRoutes.Use(middleWareHandler.IsAuthenticated())
+	inventoryRoutes.POST("add/:id", inventoryHandler.IncreaseStockQuantity)
+	inventoryRoutes.POST("remove/:id", inventoryHandler.RemoveStockQuantity)
 
 	// Start app
 	app.Run(":3000")

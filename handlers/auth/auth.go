@@ -40,7 +40,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 	}
 
 	// Check if user already exists
-	if h.userServices.CheckUserExistsWithEmail(params.Email) {
+	if h.UserServices.CheckUserExistsWithEmail(params.Email) {
 		slog.Info("User with email already exists", "Email", params.Email)
 		ctx.Error(&data.AppHttpErr{
 			Message: "User with this email already exists",
@@ -69,7 +69,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 	}
 
 	// Add user to database
-	if result := h.userServices.DB.Create(&user); result.Error != nil {
+	if result := h.UserServices.DB.Create(&user); result.Error != nil {
 		slog.Info(result.Error.Error())
 		ctx.Error(&data.AppHttpErr{
 			Message: "User could not be created",
@@ -99,7 +99,7 @@ func (h AuthHandler) Login(ctx *gin.Context) {
 
 	// Check if user with email exists
 
-	if !h.userServices.CheckUserExistsWithEmail(params.Email) {
+	if !h.UserServices.CheckUserExistsWithEmail(params.Email) {
 		slog.Info("User with email does not exist", "Email", params.Email)
 		ctx.Error(&data.AppHttpErr{
 			Message: "User Does Not Exist",
@@ -111,7 +111,7 @@ func (h AuthHandler) Login(ctx *gin.Context) {
 	// Get user from DB
 	var user models.User
 
-	if result := h.userServices.DB.Where("Email=?", params.Email).First(&user); result.Error != nil {
+	if result := h.UserServices.DB.Where("Email=?", params.Email).First(&user); result.Error != nil {
 		slog.Info(result.Error.Error())
 		ctx.Error(&data.AppHttpErr{
 			Message: "An unexpected error occured",

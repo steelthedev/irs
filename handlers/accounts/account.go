@@ -24,7 +24,7 @@ func (h AccountHandler) GetUserProfile(ctx *gin.Context) {
 	}
 
 	// Fetch user from database
-	user, err := h.userService.GetUserById(userId)
+	user, err := h.UserService.GetUserById(userId)
 	if err != nil {
 		ctx.Error(&data.AppHttpErr{Message: "An error occured", Code: http.StatusInternalServerError})
 		return
