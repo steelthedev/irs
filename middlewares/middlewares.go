@@ -8,10 +8,13 @@ import (
 	"github.com/steelthedev/irs/data"
 	"github.com/steelthedev/irs/models"
 	"github.com/steelthedev/irs/tokens"
-	"gorm.io/gorm"
 )
 
-func ErrorHandler() gin.HandlerFunc {
+type MiddlewareHandler struct {
+	UserServices *models.UserService
+}
+
+func (h MiddlewareHandler) ErrorHandler() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		ctx.Next()
 
@@ -32,7 +35,7 @@ func ErrorHandler() gin.HandlerFunc {
 	}
 }
 
-func IsAuthenticated() gin.HandlerFunc {
+func (h MiddlewareHandler) IsAuthenticated() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		token := tokens.ExtractToken(ctx)
@@ -58,7 +61,7 @@ func IsAuthenticated() gin.HandlerFunc {
 	}
 }
 
-func IsAdmin(db *gorm.DB) gin.HandlerFunc {
+func (h MiddlewareHandler) IsAdmin() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		userId, err := tokens.ExtractIdFromToken(ctx)
 		if err != nil {
@@ -71,7 +74,7 @@ func IsAdmin(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		// Get user from Id
-		user, err := models.GetUserById(userId, db)
+		user, err := h.userServices.GetUserById(userId)
 		if err != nil {
 			slog.Info("User not recognixed", "Error", err.Error())
 			ctx.AbortWithError(http.StatusInternalServerError, &data.AppHttpErr{

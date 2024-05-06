@@ -10,11 +10,10 @@ import (
 	"github.com/steelthedev/irs/tokens"
 	"github.com/steelthedev/irs/utils"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/gorm"
 )
 
 type AuthHandler struct {
-	DB *gorm.DB
+	UserServices models.UserService
 }
 
 func (h AuthHandler) CreateUser(ctx *gin.Context) {
@@ -41,7 +40,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 	}
 
 	// Check if user already exists
-	if models.CheckUserExistsWithEmail(params.Email, h.DB) {
+	if h.userServices.CheckUserExistsWithEmail(params.Email) {
 		slog.Info("User with email already exists", "Email", params.Email)
 		ctx.Error(&data.AppHttpErr{
 			Message: "User with this email already exists",
@@ -70,7 +69,7 @@ func (h AuthHandler) CreateUser(ctx *gin.Context) {
 	}
 
 	// Add user to database
-	if result := h.DB.Create(&user); result.Error != nil {
+	if result := h.userServices.DB.Create(&user); result.Error != nil {
 		slog.Info(result.Error.Error())
 		ctx.Error(&data.AppHttpErr{
 			Message: "User could not be created",
@@ -100,7 +99,7 @@ func (h AuthHandler) Login(ctx *gin.Context) {
 
 	// Check if user with email exists
 
-	if !models.CheckUserExistsWithEmail(params.Email, h.DB) {
+	if !h.userServices.CheckUserExistsWithEmail(params.Email) {
 		slog.Info("User with email does not exist", "Email", params.Email)
 		ctx.Error(&data.AppHttpErr{
 			Message: "User Does Not Exist",
@@ -112,7 +111,7 @@ func (h AuthHandler) Login(ctx *gin.Context) {
 	// Get user from DB
 	var user models.User
 
-	if result := h.DB.Where("Email=?", params.Email).First(&user); result.Error != nil {
+	if result := h.userServices.DB.Where("Email=?", params.Email).First(&user); result.Error != nil {
 		slog.Info(result.Error.Error())
 		ctx.Error(&data.AppHttpErr{
 			Message: "An unexpected error occured",

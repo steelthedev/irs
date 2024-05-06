@@ -35,7 +35,7 @@ func main() {
 		slog.Info(err.Error())
 	}
 
-	app.Use(middlewares.ErrorHandler())
+	// app.Use(.ErrorHandler())
 
 	app.GET("/ping", func(ctx *gin.Context) {
 		ctx.IndentedJSON(200, gin.H{
@@ -61,7 +61,7 @@ func main() {
 
 	// Auth App Handler
 	authHandler := &auth.AuthHandler{
-		DB: db,
+		UserServices: *userServices,
 	}
 
 	adminHandler := &admin.AdminHandler{
@@ -70,6 +70,11 @@ func main() {
 
 	productHandler := &products.ProductsHandler{
 		ProductService: *productService,
+	}
+
+	// Middleware Hanlder
+	middleWareHandler := middlewares.MiddlewareHandler{
+		UserServices: userServices,
 	}
 	//Routes
 
@@ -80,16 +85,16 @@ func main() {
 
 	// Admin Routes
 	adminRoutes := app.Group("admin")
-	adminRoutes.Use(middlewares.IsAuthenticated())
-	adminRoutes.Use(middlewares.IsAdmin(db))
+	adminRoutes.Use(middleWareHandler.IsAuthenticated())
+	adminRoutes.Use(middleWareHandler.IsAdmin())
 	adminRoutes.GET("/users", adminHandler.GetAllUsers)
 
 	// Account Routes
-	accountRoutes := app.Group("account", middlewares.IsAuthenticated())
+	accountRoutes := app.Group("account", middleWareHandler.IsAuthenticated())
 	accountRoutes.GET("/profile", accountHandler.GetUserProfile)
 
 	// Product Routes
-	productRoutes := app.Group("product", middlewares.IsAuthenticated())
+	productRoutes := app.Group("product", middleWareHandler.IsAuthenticated())
 	productRoutes.POST("/add", productHandler.AddNewProduct)
 	productRoutes.DELETE("/delete/:id", productHandler.DeleteProduct)
 	productRoutes.GET("/", productHandler.GetAllProducts)
