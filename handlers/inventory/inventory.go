@@ -25,7 +25,7 @@ func (h InventoryHandler) RemoveStockQuantity(ctx *gin.Context) {
 		return
 	}
 	productID, _ := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err := h.productService.RemoveQuantity(uint(productID), params.Units); err != nil {
+	if err := h.ProductService.RemoveQuantity(uint(productID), params.Units); err != nil {
 		slog.Info("Could not Remove Quantity", "Error", err.Error())
 		ctx.Error(&data.AppHttpErr{
 			Message: "An error occured",
@@ -47,7 +47,7 @@ func (h InventoryHandler) IncreaseStockQuantity(ctx *gin.Context) {
 		return
 	}
 	productID, _ := strconv.ParseUint(ctx.Param("id"), 10, 32)
-	if err := h.productService.AddQuantity(uint(productID), params.Units); err != nil {
+	if err := h.ProductService.AddQuantity(uint(productID), params.Units); err != nil {
 		slog.Info("Could not Add Quantity", "Error", err.Error())
 		ctx.Error(&data.AppHttpErr{
 			Message: "An error occured",
